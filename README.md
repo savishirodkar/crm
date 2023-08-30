@@ -26,10 +26,11 @@ bash
 
 
 # Clone repo
-git clone https://github.com/user/project.git
+git clone https://github.com/savishirodkar/crm.git
 
 # Install requirements
-pip install -r requirements.txt
+pip install -r requ
+irements.txt
 
 # Run migrations
 python manage.py migrate
