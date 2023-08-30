@@ -7,6 +7,10 @@ from choices.lead_status import LEAD_STATUS
 from choices.agent_type import AGENT_TYPE
 
 
+
+class Team(models.Model):
+    name = models.CharField(max_length=100)
+
 class UserProfileManager(BaseUserManager):
     def create_user(self, email, name, phone, role, title, dob,address, createdOn  , password=None):
         if not email:
@@ -25,7 +29,7 @@ class UserProfileManager(BaseUserManager):
 class UserProfile(AbstractBaseUser):
     title = models.CharField("Title", max_length=50, blank=True, null=True)
     name = models.CharField("Name", max_length=255)
-    email = models.EmailField("E-mail", blank=True, null=True)
+    email = models.EmailField("E-mail", blank=True, null=True,unique=True)
     phone = models.CharField(max_length=20)
     dob = models.DateField("Date of Birth", blank=True, null=True)
     address = models.TextField(blank=True, null=True)
@@ -62,19 +66,38 @@ class CustomerCare(UserProfile):
     department = models.CharField(max_length=100)
 
 
+
+
 class Customer(UserProfile):
     status = models.CharField("Status of Lead", max_length=255,blank=True, null=True, choices= LEAD_STATUS)
     source = models.CharField("Source of Lead", max_length=255,blank=True, null=True, choices=LEAD_SOURCE)
     isActive = models.BooleanField("Active",default=False)
     dnc = models.BooleanField("Do Not Call", default= False)
     description = models.TextField(blank=True, null=True)
-#     # assigned_to = models.ManyToManyField(User, related_name='lead_assigned_users')
-#
-    def __str__(self):
-        return self.name
 
 
-# class Escalators(Userprofile):
-# class TeamManager(Userprofile):
-# class TeamLead(Userprofile):
-#
+    # assigned_to = models.ManyToManyField(User, related_name='lead_assigned_users')
+def __str__(self):
+    return self.name
+class Escalators(UserProfile):
+    is_escalator = models.BooleanField(default=False)
+    escalation_level = models.IntegerField(null=True, blank=True)
+    escalation_priority = models.IntegerField(null=True, blank=True)
+
+def __str__(self):
+    return self.name
+
+
+class TeamManager(UserProfile):
+    is_team_manager = models.BooleanField(default=False)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='managers')
+
+def __str__(self):
+    return self.name
+class TeamLead(UserProfile):
+    is_team_lead = models.BooleanField(default=False)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='leads')
+    manager = models.ForeignKey('TeamManager', on_delete=models.CASCADE, related_name='leads')
+
+def __str__(self):
+    return self.name
